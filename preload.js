@@ -1,5 +1,5 @@
-//new Block(600,100,blockType.text,{text:"UWU OWO MEOW"}),new Block(600,200,blockType.normal,{}),new Block(600,300,blockType.bounce,{}),new Block(600,400,blockType.falling,{}),new Block(600,500,blockType.danger,{}
-const blockType = {
+
+const blockType = { //Enum for block types
   normal:1, //Blue
   bounce:2, //Green
   falling:3, //Red
@@ -7,6 +7,7 @@ const blockType = {
   text: 5 //Not even a block lmao, just tutorial text
 }
 
+//Simple tracker to figure out which keys are pressed
 var keysDown = {}
 addEventListener("keydown", function (e) {
   keysDown[e.keyCode] = true;
@@ -19,6 +20,7 @@ var gamePlayingRn = false
 var currentLevel
 var swingLine
 
+//Initiate pixijs and textures
 const app = new PIXI.Application({
     width: 800, height: 600, backgroundColor: 0x111111, resolution: window.devicePixelRatio || 1,
 });
@@ -46,6 +48,7 @@ function getDistance(x1,y1,x2,y2){
   return Math.sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))
 }
 
+//Used when player clicks item on menu screen
 function startLevel(levelNum){
   gamePlayingRn = true
   for(let i =0;i<menus.length;i++){
@@ -56,6 +59,7 @@ function startLevel(levelNum){
   playerSprite.noGravity = true
 }
 
+//Used to display levels on menu screen
 function addLevelText(level){
   const lockedStyle =  new PIXI.TextStyle({
     fontFamily: 'Century Gothic',
@@ -121,6 +125,7 @@ class Menu{
 
 var menus = [new Menu()]
 
+//Block class used in world class
 class Block{
   constructor(x,y,type,extraInfo){
     this.type = type
@@ -129,6 +134,7 @@ class Block{
         this.sprite = new PIXI.Sprite(gameTextures.blueBlock)
         this.sprite.interactive = true
 
+        //Click to swing code
         this.sprite.on('pointerdown', function(){ //Context of this changes
           this.texture = gameTextures.blueBlockSelect
           playerSprite.isSwing = true //If its swinging
@@ -141,6 +147,7 @@ class Block{
           if(playerSprite.x > this.x) playerSprite.swingRot = Math.atan(-(playerSprite.y-this.y)/(playerSprite.x-this.x))
           else playerSprite.swingRot = Math.atan(-(playerSprite.y-this.y)/(playerSprite.x-this.x))-Math.PI
         })
+        //Release from swing
         this.sprite.on('pointerup', function(){
           this.texture = gameTextures.blueBlock
           playerSprite.isSwing = false
@@ -153,6 +160,7 @@ class Block{
             playerSprite.velY = Math.cos(playerSprite.swingRot)*distance*25
           }
         })
+        //Release from swing
         this.sprite.on('pointerupoutside', function(){
           this.texture = gameTextures.blueBlock
           playerSprite.isSwing = false
@@ -173,6 +181,7 @@ class Block{
         this.sprite = new PIXI.Sprite(gameTextures.redBlock)
         this.sprite.interactive = true
 
+        //Same as code for normal blocktype but now block dissapears afterward
         this.sprite.on('pointerdown', function(){ //Context of this changes
           this.texture = gameTextures.redBlockSelect
           playerSprite.isSwing = true //If its swinging
@@ -218,6 +227,7 @@ class Block{
         this.sprite = new PIXI.Sprite(gameTextures.yellowBlock)
         break
       case blockType.text:
+      //Text for tutorial info / bad jokes
         const tutorialTextStyle =  new PIXI.TextStyle({
           fontFamily: 'Century Gothic',
           fontSize: 20,
@@ -232,7 +242,7 @@ class Block{
     this.sprite.anchor.set(0.5)
   }
 
-  touching(x,y){
+  touching(x,y){ //Collision code used in main game loop
     if(this.sprite.x - 32 < x && x < this.sprite.x + 32)
       if(this.sprite.y - 32 < y && y < this.sprite.y + 32) return true
     return false

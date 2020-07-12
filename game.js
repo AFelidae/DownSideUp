@@ -1,4 +1,4 @@
-class World{
+class World{ //Makes the level displayed on screen
   constructor(inverse,blocks){
     this.level = new PIXI.Container()
     this.inverse = inverse
@@ -6,12 +6,12 @@ class World{
     this.arrows = []
 
     let b
-    for(b of this.blocks){
+    for(b of this.blocks){ //Renders blocks
       this.level.addChild(b.sprite)
     }
 
     this.goalPoint = this.inverse[this.inverse.length -1]
-    for(let i=0;i<10;i++){
+    for(let i=0;i<10;i++){ //Creates end of level flag
       let newFlag = new PIXI.Sprite(gameTextures.flag)
       newFlag.anchor.set(0.5)
       newFlag.x = this.goalPoint
@@ -23,7 +23,7 @@ class World{
     let down = false
     for(i of this.inverse){
       if(i != this.goalPoint)
-      for(let j=0;j<10;j++){
+      for(let j=0;j<10;j++){ //Creates arrows indicating gravity changes
         let newArrow = new PIXI.Sprite(gameTextures.arrow)
         newArrow.anchor.set(0.5)
         newArrow.x = i
@@ -35,6 +35,7 @@ class World{
       down = !down
     }
 
+    //Reset player before level starts
     playerSprite.y = app.screen.height/2
     playerSprite.x = app.screen.width/2
     playerSprite.noGravity = true //If gravity is being applied
@@ -50,7 +51,7 @@ class World{
     app.stage.addChild(this.level)
   }
 
-  gravityDown(posX){
+  gravityDown(posX){ //Simple method for direction of gravity
     let up = true
     let pos
     for(pos of this.inverse){
@@ -60,7 +61,7 @@ class World{
   }
 }
 
-function death(){
+function death(){ //Triggered when player goes to title screen
   gamePlayingRn = false
   playerSprite.x = 400
   playerSprite.y = 300
@@ -70,7 +71,7 @@ function death(){
   menus.push(new Menu())
 }
 
-function levelUp(){
+function levelUp(){ //Triggered when player completes a level
   playerLevel += 1
   death()
 }
@@ -80,9 +81,9 @@ app.ticker.add((delta) => {
   app.stage.removeChild(swingLine)
   app.stage.x = -playerSprite.x + app.screen.width/2
 
-  if(currentLevel != null && gamePlayingRn){
+  if(currentLevel != null && gamePlayingRn){ //Only runs movement logic if game is running
     let block
-    for(block of currentLevel.blocks){
+    for(block of currentLevel.blocks){ //Block collision logic
       if(block.type == blockType.danger){
         if(block.touching(playerSprite.x, playerSprite.y - 32)){ //top side
           death()
@@ -116,7 +117,7 @@ app.ticker.add((delta) => {
         }
       }
     }
-    if(playerSprite.isSwing){
+    if(playerSprite.isSwing){ //Player swing animation and physics
       //Draw the line
       //try{ //Should never be called without attatchedTo being defined but just incase
         swingLine = new PIXI.Graphics();
@@ -142,7 +143,7 @@ app.ticker.add((delta) => {
         playerSprite.swingRot += playerSprite.velRot
 
       //}catch(err){}
-    }else{
+    }else{ //Physics for normal movement
       if(!playerSprite.noGravity){
         if(currentLevel.gravityDown(playerSprite.x)) playerSprite.velY += 30
         else playerSprite.velY -= 30
@@ -152,7 +153,7 @@ app.ticker.add((delta) => {
         playerSprite.y += playerSprite.velY * delta / 1000
       }
     }
-    if(playerSprite.x > currentLevel.goalPoint){
+    if(playerSprite.x > currentLevel.goalPoint){ //Checks for out of bounds death and level completion
       levelUp()
     }else if(playerSprite.y > 650){
       death()
